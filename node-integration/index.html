@@ -1,0 +1,75 @@
+<!-- client side -->
+
+<!doctype html>
+<html>
+
+<!-- HTML HEAD -->
+<head>
+	<title>Line Chart</title>
+	<!-- Source for Canvas JS - points to the web - needs internet -->
+	<script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+	<!-- Source for Socket.io - this one is local -->
+	<script src="/socket.io/socket.io.js"></script>
+
+	<style>
+  	canvas{
+  		-moz-user-select: none;
+  		-webkit-user-select: none;
+  		-ms-user-select: none;
+  	}
+	</style>
+</head>
+
+<body>
+	<!-- HTML layout -->
+  <h1>Hello world -- test 1, 2, 3</h1> <br>
+	<div id="message_disp"></div>
+	<div id="chartContainer" style="height: 300px; width: 100%;"></div>
+
+	<!-- Script to handle charting -->
+	<script>
+		var dps = [];
+		var chart = new CanvasJS.Chart("chartContainer", {
+			exportEnabled: true,
+			title :{
+				text: "Dynamic Line Chart"
+			},
+			axisY: {
+				includeZero: false
+			},
+			data: [{
+				type: "line",
+				markerSize: 0,
+				dataPoints: dps
+			}]
+		});
+		// number of dataPoints visible at any point
+		var dataLength = 50;
+	</script>
+
+	<!-- Script to handle socket and also to update chart datapoints -->
+	<script>
+		var index = 0;
+		var socket = io();
+		socket.on('message', function(msg){
+			console.log(msg);
+			document.getElementById("message_disp").innerHTML = msg;
+
+			// Update data array
+			dps.push({
+				x: index,
+				y: msg
+			});
+			index++;
+
+			if (dps.length > dataLength) {
+				dps.shift();
+			}
+			chart.render();
+
+		});
+	</script>
+
+</body>
+
+</html>
